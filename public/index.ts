@@ -33,14 +33,16 @@ async function main() {
       const addedNode = mutationsList[i].addedNodes[0];
       if (addedNode && addedNode.childNodes.length) {
         const nodes = doc.querySelectorAll(".references")
-        const node = nodes[nodes.length- 1];
-        const blocks = node.querySelectorAll('.block-content')
-        if (blocks.length) {
-          unlinkObserver.disconnect()
-          for (let i=0; i < blocks.length; i++) {
-            addHighlight(blocks[i])
+        if(nodes.length > 0) {
+          const node = nodes[nodes.length- 1];
+          const blocks = node.querySelectorAll('.block-content')
+          if (blocks.length) {
+            unlinkObserver.disconnect()
+            for (let i=0; i < blocks.length; i++) {
+              addHighlight(blocks[i])
+            }
+            unlinkObserver.observe(appContainer, obConfig);
           }
-          unlinkObserver.observe(appContainer, obConfig);
         }
       }
     }
@@ -99,6 +101,9 @@ function addButton(blockEl, pageNames) {
 
 async function addHighlight(blockEl) {
   const inline = blockEl.querySelector('.inline')
+  if (!inline) {
+    return
+  }
   const pageNames = await getPageNames()
 
   const reStr = '(' + pageNames.join('|') + ')'
