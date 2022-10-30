@@ -1,0 +1,20 @@
+{
+  "name": "logseq-plugin-link-unlink",
+  "version": "1.5.0",
+  "main": "dist/index.html",
+  "logseq": {
+    "id": "_usoon-logseq-link-unlink",
+    "icon": "./icon.png"
+  },
+  "scripts": {
+    "start": "wmr",
+    "build": "wmr build",
+    "serve": "wmr serve"
+  },
+  "dependencies": {
+    "@logseq/libs": "^0.0.6"
+  },
+  "devDependencies": {
+    "wmr": "^3.7.2"
+  }
+}
