@@ -34,7 +34,9 @@ async function main() {
     for (let i = 0; i < mutationsList.length; i++) {
       const addedNode = mutationsList[i].addedNodes[0];
       if (addedNode && addedNode.childNodes.length) {
-        const blocks = addedNode.querySelectorAll('.references .block-content')
+        const nodes = doc.querySelectorAll(".references")
+        const node = nodes[nodes.length- 1];
+        const blocks = node.querySelectorAll('.block-content')
         console.log(blocks)
         if (blocks.length) {
           unlinkObserver.disconnect()
@@ -68,8 +70,12 @@ async function main() {
 }
 
 function addButton(block) {
+  let linkButton = block.querySelector('.link-button')
+  if (linkButton) {
+    return
+  }
   const blockID = block.getAttribute('blockid')
-  let linkButton = doc.createElement("button");
+  linkButton = doc.createElement("button");
   linkButton.setAttribute("class", "link-button");
   linkButton.innerHTML = "link";
   linkButton.addEventListener("click", (e) => {
@@ -79,11 +85,6 @@ function addButton(block) {
 }
 
 async function addHighlight(block) {
-  const oldHighligh = block.querySelector(".link-highlight");
-  if(oldHighligh) {
-    return
-  }
-
   const inline = block.querySelector('.inline')
   const pageNames = await getPageNames()
 
