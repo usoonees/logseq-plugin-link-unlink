@@ -36,7 +36,6 @@ async function main() {
         const nodes = doc.querySelectorAll(".references")
         const node = nodes[nodes.length- 1];
         const blocks = node.querySelectorAll('.block-content')
-        console.log(blocks)
         if (blocks.length) {
           unlinkObserver.disconnect()
           for (let i=0; i < blocks.length; i++) {
@@ -57,8 +56,6 @@ async function main() {
   function addObserverIfDesiredNodeAvailable() {
     appContainer = doc.getElementById("app-container");
     if(!appContainer) {
-        //The node we need does not exist yet.
-        //Wait 500ms and try again
         setTimeout(addObserverIfDesiredNodeAvailable, 2000);
         return;
     }
@@ -72,23 +69,35 @@ async function main() {
 
 }
 
-function addButton(block) {
-  let linkButton = block.querySelector('.link-button')
+function addButton(blockEl, pageNames) {
+  let linkButton = blockEl.querySelector('.link-button')
   if (linkButton) {
     return
   }
-  const blockID = block.getAttribute('blockid')
+  const blockID = blockEl.getAttribute('blockid')
   linkButton = doc.createElement("button");
   linkButton.setAttribute("class", "link-button");
   linkButton.innerHTML = "link";
-  linkButton.addEventListener("click", (e) => {
-    console.log("click ", blockID)
+  linkButton.addEventListener("click", async (e) => {
+    const block = await logseq.Editor.getBlock(blockID)
+    const content = block.content
+    const reStr = '[^[/]?' + '(' + pageNames.join('|') + ')'
+    const re = new RegExp(reStr, "ig");
+    const newContent = content.replace(re, ' [[$1]]').trim()
+    logseq.Editor.updateBlock(blockID, newContent)
+    let highlights = blockEl.querySelectorAll('.link-highlight')
+    for (let i=0; i < highlights.length; i++) {
+      highlights[i].remove()
+    }
+    linkButton.style.display = 'none'
+    // blockEl.style.display = 'none';
   })
-  block.querySelector('.inline').appendChild(linkButton)
+
+  blockEl.querySelector('.inline').appendChild(linkButton)
 }
 
-async function addHighlight(block) {
-  const inline = block.querySelector('.inline')
+async function addHighlight(blockEl) {
+  const inline = blockEl.querySelector('.inline')
   const pageNames = await getPageNames()
 
   const reStr = '(' + pageNames.join('|') + ')'
@@ -107,7 +116,7 @@ async function addHighlight(block) {
   processChild.forEach(child => {
     const text = child.textContent
     if (re.test(text)) {
-      addButton(block)
+      addButton(blockEl, pageNames)
     }
     let domText = text.replace(re, '<span class="link-highlight">$1</span>')
     let newDom = document.createElement("span");
