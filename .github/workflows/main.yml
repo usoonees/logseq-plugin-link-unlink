@@ -3,7 +3,7 @@
 name: Release
 
 env:
-  PLUGIN_NAME: logseq-plugin-paste-more
+  PLUGIN_NAME: logseq-plugin-link-unlinked
 
 # Controls when the workflow will run
 on:
