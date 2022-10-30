@@ -1,7 +1,6 @@
 import "@logseq/libs"
 
 const doc = parent.document
-const appContainer = doc.getElementById("app-container");
 
 async function getPageNames() {
   const page = await logseq.Editor.getCurrentPage()
@@ -28,7 +27,7 @@ async function main() {
 
   `)
 
-  let unlinkObserver
+  let unlinkObserver, appContainer;
 
   const unlinkCallback = function (mutationsList, observer) {
     for (let i = 0; i < mutationsList.length; i++) {
@@ -53,20 +52,24 @@ async function main() {
     childList: true,
     subtree: true,
   };
-
   unlinkObserver = new MutationObserver(unlinkCallback);
-  unlinkObserver.observe(appContainer, obConfig);
 
-
-  logseq.Editor.registerSlashCommand("unlink", async (e) => {
-    console.log("run unlinking")
-    const nodes = doc.querySelectorAll(".references")
-    const node = nodes[nodes.length- 1];
-    const blocks = node.querySelectorAll('.block-content')
-    for (let i=0; i < blocks.length; i++) {
-      addHighlight(blocks[i])
+  function addObserverIfDesiredNodeAvailable() {
+    appContainer = doc.getElementById("app-container");
+    if(!appContainer) {
+        //The node we need does not exist yet.
+        //Wait 500ms and try again
+        setTimeout(addObserverIfDesiredNodeAvailable, 2000);
+        return;
     }
-  });
+    unlinkObserver.observe(appContainer, obConfig);
+  }
+  addObserverIfDesiredNodeAvailable();
+
+  logseq.beforeunload(async () => {
+    unlinkObserver.disconnect()
+  })
+
 }
 
 function addButton(block) {
