@@ -1,9 +1,10 @@
 {
-  "name": "logseq-plugin-link-unlink",
-  "version": "1.5.0",
+  "name": "logseq-plugin-link-unlinked",
+  "version": "0.0.1",
   "main": "dist/index.html",
   "logseq": {
-    "id": "_usoon-logseq-link-unlink",
+    "title": "Link Unlinked References",
+    "id": "_usoon-logseq-link-unlinked",
     "icon": "./icon.png"
   },
   "scripts": {

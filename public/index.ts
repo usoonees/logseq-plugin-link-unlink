@@ -5,7 +5,7 @@ const doc = parent.document
 async function getPageNames() {
   const page = await logseq.Editor.getCurrentPage()
   let pageNames = [page.name]
-  if(page.properties) {
+  if(page.properties && page.properties['alias']) {
     pageNames = pageNames.concat(page.properties['alias'])
   }
 
@@ -84,6 +84,8 @@ function addButton(blockEl, pageNames) {
     const reStr = '[^[/]?' + '(' + pageNames.join('|') + ')'
     const re = new RegExp(reStr, "ig");
     const newContent = content.replace(re, ' [[$1]]').trim()
+    console.log("oldContent", content, pageNames)
+    console.log("newContent", newContent)
     logseq.Editor.updateBlock(blockID, newContent)
     let highlights = blockEl.querySelectorAll('.link-highlight')
     for (let i=0; i < highlights.length; i++) {
