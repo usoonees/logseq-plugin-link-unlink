@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-link-unlinked",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/index.html",
   "logseq": {
     "title": "Link Unlinked References",

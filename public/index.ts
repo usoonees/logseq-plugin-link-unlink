@@ -80,7 +80,7 @@ function addButton(blockEl, pageNames) {
   linkButton.addEventListener("click", async (e) => {
     const block = await logseq.Editor.getBlock(blockID)
     const content = block.content
-    const reStr = '[^[/]?' + '(' + pageNames.join('|') + ')'
+    const reStr = '[^[/#]?' + '(' + pageNames.join('|') + ')'
     const re = new RegExp(reStr, "ig");
     const newContent = content.replace(re, ' [[$1]]').trim()
     console.log("oldContent", content, pageNames)
