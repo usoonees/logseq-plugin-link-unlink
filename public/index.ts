@@ -70,6 +70,7 @@ async function main() {
 
 }
 
+const inlineSelector = '.inline, .is-paragraph, h1, h2, h3, h4, h5, h6'
 function addButton(blockEl, pageNames) {
   let linkButton = blockEl.querySelector('.link-button')
   if (linkButton) {
@@ -84,23 +85,45 @@ function addButton(blockEl, pageNames) {
     const content = block.content
     const reStr = '[^[/#]?' + '(' + pageNames.join('|') + ')'
     const re = new RegExp(reStr, "ig");
-    const newContent = content.replace(re, ' [[$1]]').trim()
+
+    /* 
+       page = cu
+      'cu #focus #f/ocus #cu cus focus [[cu]] [[focus]]'
+      '[[cu]] #focus #f/ocus #cu [[cu]]s fo[[cu]]s [[cu]] [[focus]]'
+    */
+    const newContent = content.replace(re, (match, token, i) => {
+      // console.log(match, token, i)
+      while(i>=0) {
+          if(/\s/.test(content[i])) {
+              break
+          } else if (content[i] == '[' || content[i] == '#') {
+              return match
+          }
+          i -= 1;
+      }
+      if(token != match){
+          return `${match[0]}[[${token}]]`
+      }
+      return `[[${token}]]`
+      
+  })
     console.log("oldContent", content, pageNames)
     console.log("newContent", newContent)
     logseq.Editor.updateBlock(blockID, newContent)
     let highlights = blockEl.querySelectorAll('.link-highlight')
     for (let i=0; i < highlights.length; i++) {
-      highlights[i].remove()
+      // highlights[i].remove()
+      highlights[i].style.display = 'none'
     }
     linkButton.style.display = 'none'
     // blockEl.style.display = 'none';
   })
 
-  blockEl.querySelector('.inline').appendChild(linkButton)
+  blockEl.querySelector(inlineSelector).appendChild(linkButton)
 }
 
 async function addHighlight(blockEl) {
-  const inline = blockEl.querySelector('.inline')
+  const inline = blockEl.querySelector(inlineSelector)
   if (!inline) {
     return
   }
