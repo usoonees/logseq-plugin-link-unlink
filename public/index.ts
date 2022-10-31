@@ -1,6 +1,7 @@
 import "@logseq/libs"
 
 const doc = parent.document
+const highlightClass = 'unlink-highlight'
 
 async function getPageNames() {
   const page = await logseq.Editor.getCurrentPage()
@@ -20,7 +21,7 @@ async function main() {
       padding-right: 5px;
     }
 
-    span.link-highlight {
+    span.${highlightClass} {
       background-color: yellow;
     }
 
@@ -71,7 +72,7 @@ async function main() {
 }
 
 const inlineSelector = '.inline, .is-paragraph, h1, h2, h3, h4, h5, h6'
-function addButton(blockEl, pageNames) {
+function addButton(blockEl, pageNames, isPureText) {
   let linkButton = blockEl.querySelector('.link-button')
   if (linkButton) {
     return
@@ -83,7 +84,7 @@ function addButton(blockEl, pageNames) {
   linkButton.addEventListener("click", async (e) => {
     const block = await logseq.Editor.getBlock(blockID)
     const content = block.content
-    const reStr = '[^[/#]?' + '(' + pageNames.join('|') + ')'
+    const reStr = '(' + pageNames.join('|') + ')'
     const re = new RegExp(reStr, "ig");
 
     /* 
@@ -91,7 +92,7 @@ function addButton(blockEl, pageNames) {
       'cu #focus #f/ocus #cu cus focus [[cu]] [[focus]]'
       '[[cu]] #focus #f/ocus #cu [[cu]]s fo[[cu]]s [[cu]] [[focus]]'
     */
-    const newContent = content.replace(re, (match, token, i) => {
+    const newContent = content.replace(re, (match, _, i) => {
       // console.log(match, token, i)
       while(i>=0) {
           if(/\s/.test(content[i])) {
@@ -101,19 +102,22 @@ function addButton(blockEl, pageNames) {
           }
           i -= 1;
       }
-      if(token != match){
-          return `${match[0]}[[${token}]]`
-      }
-      return `[[${token}]]`
-      
+
+      return `[[${match}]]`
   })
     console.log("oldContent", content, pageNames)
     console.log("newContent", newContent)
-    await logseq.Editor.updateBlock(blockID, newContent)
-    let highlights = blockEl.querySelectorAll('.link-highlight')
+    await logseq.Editor.updateBlock(blockID, newContent) 
+
+    if(!isPureText) { // sometimes header and paragraph would cause block render error
+      await logseq.Editor.editBlock(blockID)
+      logseq.Editor.exitEditingMode()
+    }
+
+    let highlights = blockEl.querySelectorAll(`.${highlightClass}`)
     for (let i=0; i < highlights.length; i++) {
       // highlights[i].style.display = 'none'
-      highlights[i].classList.remove('link-highlight')
+      highlights[i].remove()
     }
     linkButton.style.display = 'none'
   })
@@ -144,11 +148,10 @@ async function addHighlight(blockEl) {
   processChild.forEach(child => {
     const text = child.textContent
     if (re.test(text)) {
-      if(inline.tagName == "SPAN") { // FIXME: H1 & QUOTE block render error
-        addButton(blockEl, pageNames)
-      }
+      const isPureText = inline.tagName == "SPAN"
+      addButton(blockEl, pageNames, isPureText)
     }
-    let domText = text.replace(re, '<span class="link-highlight">$1</span>')
+    let domText = text.replace(re, `<span class="${highlightClass}">$1</span>`)
     let newDom = document.createElement("span");
     newDom.innerHTML = domText
     inline.replaceChild(newDom, child)
