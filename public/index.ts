@@ -109,14 +109,13 @@ function addButton(blockEl, pageNames) {
   })
     console.log("oldContent", content, pageNames)
     console.log("newContent", newContent)
-    logseq.Editor.updateBlock(blockID, newContent)
+    await logseq.Editor.updateBlock(blockID, newContent)
     let highlights = blockEl.querySelectorAll('.link-highlight')
     for (let i=0; i < highlights.length; i++) {
-      // highlights[i].remove()
-      highlights[i].style.display = 'none'
+      // highlights[i].style.display = 'none'
+      highlights[i].classList.remove('link-highlight')
     }
     linkButton.style.display = 'none'
-    // blockEl.style.display = 'none';
   })
 
   blockEl.querySelector(inlineSelector).appendChild(linkButton)
@@ -145,7 +144,9 @@ async function addHighlight(blockEl) {
   processChild.forEach(child => {
     const text = child.textContent
     if (re.test(text)) {
-      addButton(blockEl, pageNames)
+      if(inline.tagName == "SPAN") { // FIXME: H1 & QUOTE block render error
+        addButton(blockEl, pageNames)
+      }
     }
     let domText = text.replace(re, '<span class="link-highlight">$1</span>')
     let newDom = document.createElement("span");
