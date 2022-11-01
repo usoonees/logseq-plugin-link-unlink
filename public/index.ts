@@ -15,11 +15,27 @@ async function getPageNames() {
 
 async function main() {
   logseq.provideStyle(`
-    button.link-button {
-      float: right;
-      padding-left: 5px;
-      padding-right: 5px;
-    }
+  button.link-button {
+    float: right;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid var(--ls-border-color);
+    border-radius: 4px;
+    opacity: 0.6;
+    transition: .3s;
+  }
+  button.link-button:hover {
+    opacity: 1;
+  }
+  button.link-button::before {
+    content: "\\eade";
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    display: inline-block;
+    line-height: 1em;
+    font-family: tabler-icons;
+  }
 
     span.${highlightClass} {
       background-color: yellow;
@@ -87,7 +103,7 @@ function addButton(blockEl, pageNames, isPureText) {
     const reStr = '(' + pageNames.join('|') + ')'
     const re = new RegExp(reStr, "ig");
 
-    /* 
+    /*
        page = cu
       'cu #focus #f/ocus #cu cus focus [[cu]] [[focus]]'
       '[[cu]] #focus #f/ocus #cu [[cu]]s fo[[cu]]s [[cu]] [[focus]]'
@@ -107,7 +123,7 @@ function addButton(blockEl, pageNames, isPureText) {
   })
     console.log("oldContent", content, pageNames)
     console.log("newContent", newContent)
-    await logseq.Editor.updateBlock(blockID, newContent) 
+    await logseq.Editor.updateBlock(blockID, newContent)
 
     if(!isPureText) { // sometimes header and paragraph would cause block render error
       await logseq.Editor.editBlock(blockID)
