@@ -27,23 +27,19 @@ async function main() {
 
   `)
 
-  let unlinkObserver, appContainer;
+  let unlinkObserver, unlinkedRefsContainer;
 
   const unlinkCallback = function (mutationsList, observer) {
     for (let i = 0; i < mutationsList.length; i++) {
       const addedNode = mutationsList[i].addedNodes[0];
       if (addedNode && addedNode.childNodes.length) {
-        const nodes = doc.querySelectorAll(".references")
-        if(nodes.length > 0) {
-          const node = nodes[nodes.length- 1];
-          const blocks = node.querySelectorAll('.block-content')
-          if (blocks.length) {
-            unlinkObserver.disconnect()
-            for (let i=0; i < blocks.length; i++) {
-              addHighlight(blocks[i])
-            }
-            unlinkObserver.observe(appContainer, obConfig);
+        const blocks = addedNode.querySelectorAll('.block-content')
+        if (blocks.length) {
+          unlinkObserver.disconnect()
+          for (let i=0; i < blocks.length; i++) {
+            addHighlight(blocks[i])
           }
+          unlinkObserver.observe(unlinkedRefsContainer, obConfig);
         }
       }
     }
@@ -56,14 +52,18 @@ async function main() {
   unlinkObserver = new MutationObserver(unlinkCallback);
 
   function addObserverIfDesiredNodeAvailable() {
-    appContainer = doc.getElementById("app-container");
-    if(!appContainer) {
+    unlinkedRefsContainer = doc.querySelector(".page>div:nth-last-child(1) .references");
+    if(!unlinkedRefsContainer) {
         setTimeout(addObserverIfDesiredNodeAvailable, 2000);
         return;
     }
-    unlinkObserver.observe(appContainer, obConfig);
+    unlinkObserver.observe(unlinkedRefsContainer, obConfig);
   }
   addObserverIfDesiredNodeAvailable();
+
+  logseq.App.onRouteChanged(() => {
+    addObserverIfDesiredNodeAvailable();
+});
 
   logseq.beforeunload(async () => {
     unlinkObserver.disconnect()
@@ -87,7 +87,7 @@ function addButton(blockEl, pageNames, isPureText) {
     const reStr = '(' + pageNames.join('|') + ')'
     const re = new RegExp(reStr, "ig");
 
-    /* 
+    /*
        page = cu
       'cu #focus #f/ocus #cu cus focus [[cu]] [[focus]]'
       '[[cu]] #focus #f/ocus #cu [[cu]]s fo[[cu]]s [[cu]] [[focus]]'
@@ -107,7 +107,7 @@ function addButton(blockEl, pageNames, isPureText) {
   })
     console.log("oldContent", content, pageNames)
     console.log("newContent", newContent)
-    await logseq.Editor.updateBlock(blockID, newContent) 
+    await logseq.Editor.updateBlock(blockID, newContent)
 
     if(!isPureText) { // sometimes header and paragraph would cause block render error
       await logseq.Editor.editBlock(blockID)
