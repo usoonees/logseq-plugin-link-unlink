@@ -70,7 +70,7 @@ async function main() {
   function addObserverIfDesiredNodeAvailable() {
     unlinkedRefsContainer = doc.querySelector(".page>div:nth-last-child(1) .references");
     if(!unlinkedRefsContainer) {
-        setTimeout(addObserverIfDesiredNodeAvailable, 2000);
+        setTimeout(addObserverIfDesiredNodeAvailable, 1000);
         return;
     }
     unlinkObserver.observe(unlinkedRefsContainer, obConfig);
@@ -78,8 +78,10 @@ async function main() {
   addObserverIfDesiredNodeAvailable();
 
   logseq.App.onRouteChanged(() => {
-    addObserverIfDesiredNodeAvailable();
-});
+    setTimeout(() => {
+      addObserverIfDesiredNodeAvailable();
+    }, 1000) // wait for page load, otherwise would observer the previous page
+  });
 
   logseq.beforeunload(async () => {
     unlinkObserver.disconnect()
@@ -109,7 +111,6 @@ function addButton(blockEl, pageNames, isPureText) {
       '[[cu]] #focus #f/ocus #cu [[cu]]s fo[[cu]]s [[cu]] [[focus]]'
     */
     const newContent = content.replace(re, (match, _, i) => {
-      // console.log(match, token, i)
       while(i>=0) {
           if(/\s/.test(content[i])) {
               break
@@ -121,8 +122,9 @@ function addButton(blockEl, pageNames, isPureText) {
 
       return `[[${match}]]`
   })
-    console.log("oldContent", content, pageNames)
-    console.log("newContent", newContent)
+    console.log("unlinked content: ", content, pageNames)
+    console.log("linked content: ", newContent)
+
     await logseq.Editor.updateBlock(blockID, newContent)
 
     if(!isPureText) { // sometimes header and paragraph would cause block render error
