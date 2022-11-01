@@ -43,23 +43,19 @@ async function main() {
 
   `)
 
-  let unlinkObserver, appContainer;
+  let unlinkObserver, unlinkedRefsContainer;
 
   const unlinkCallback = function (mutationsList, observer) {
     for (let i = 0; i < mutationsList.length; i++) {
       const addedNode = mutationsList[i].addedNodes[0];
       if (addedNode && addedNode.childNodes.length) {
-        const nodes = doc.querySelectorAll(".references")
-        if(nodes.length > 0) {
-          const node = nodes[nodes.length- 1];
-          const blocks = node.querySelectorAll('.block-content')
-          if (blocks.length) {
-            unlinkObserver.disconnect()
-            for (let i=0; i < blocks.length; i++) {
-              addHighlight(blocks[i])
-            }
-            unlinkObserver.observe(appContainer, obConfig);
+        const blocks = addedNode.querySelectorAll('.block-content')
+        if (blocks.length) {
+          unlinkObserver.disconnect()
+          for (let i=0; i < blocks.length; i++) {
+            addHighlight(blocks[i])
           }
+          unlinkObserver.observe(unlinkedRefsContainer, obConfig);
         }
       }
     }
@@ -72,14 +68,18 @@ async function main() {
   unlinkObserver = new MutationObserver(unlinkCallback);
 
   function addObserverIfDesiredNodeAvailable() {
-    appContainer = doc.getElementById("app-container");
-    if(!appContainer) {
+    unlinkedRefsContainer = doc.querySelector(".page>div:nth-last-child(1) .references");
+    if(!unlinkedRefsContainer) {
         setTimeout(addObserverIfDesiredNodeAvailable, 2000);
         return;
     }
-    unlinkObserver.observe(appContainer, obConfig);
+    unlinkObserver.observe(unlinkedRefsContainer, obConfig);
   }
   addObserverIfDesiredNodeAvailable();
+
+  logseq.App.onRouteChanged(() => {
+    addObserverIfDesiredNodeAvailable();
+});
 
   logseq.beforeunload(async () => {
     unlinkObserver.disconnect()
