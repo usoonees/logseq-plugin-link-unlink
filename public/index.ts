@@ -145,6 +145,7 @@ function addButton(blockEl, pageNames, isPureText) {
   blockEl.querySelector(inlineSelector).appendChild(linkButton)
 }
 
+
 async function addHighlight(blockEl) {
   const inline = blockEl.querySelector(inlineSelector)
   if (!inline) {
@@ -155,17 +156,35 @@ async function addHighlight(blockEl) {
   const reStr = '(' + pageNames.join('|') + ')'
   const re = new RegExp(reStr, "ig");
   let child = inline.firstChild
-  let processChild = []
+  let inlineText = []  // pure text in first level of inline
+  let boldText = [];  // bold, italic, mark text in second level of inline
 
   while (child) {
-    if (child.nodeType == 3) {
-      processChild.push(child)
+    if (child.nodeType == 3 ) {
+      inlineText.push(child)
+    }
+
+    if(['B', 'I', 'EM', 'STRONG', 'MARK', 'DEL'].includes(child.tagName)) {
+      boldText.push({
+        "parent": child,
+        "children": []
+      })
     }
 
     child = child.nextSibling;
   }
 
-  processChild.forEach(child => {
+  for(let i=0; i < boldText.length; i++) {
+    child = boldText[i]["parent"].firstChild
+    while (child) {
+      if (child.nodeType == 3 ) {
+        boldText[i]["children"].push(child)
+      }
+      child = child.nextSibling;
+    }
+  }
+
+  function newHighlightNode(child) {
     const text = child.textContent
     if (re.test(text)) {
       const isPureText = inline.tagName == "SPAN"
@@ -174,7 +193,17 @@ async function addHighlight(blockEl) {
     let domText = text.replace(re, `<span class="${highlightClass}">$1</span>`)
     let newDom = document.createElement("span");
     newDom.innerHTML = domText
-    inline.replaceChild(newDom, child)
+    return newDom
+  }
+
+  inlineText.forEach(child => {
+    inline.replaceChild(newHighlightNode(child), child)
+  })
+
+  boldText.forEach(boldNode => {
+    boldNode["children"].forEach(c => {
+      boldNode["parent"].replaceChild(newHighlightNode(c), c)
+    })
   })
 }
 
