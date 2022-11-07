@@ -61,8 +61,6 @@ async function main() {
     }
   };
 
-  const showUnlinkTimeout = 500
-
   const obConfig = {
     childList: true,
     subtree: true,
@@ -72,7 +70,7 @@ async function main() {
   function addObserverIfDesiredNodeAvailable() {
     unlinkedRefsContainer = doc.querySelector(".page>div:nth-last-child(1) .references");
     if(!unlinkedRefsContainer) {
-        setTimeout(addObserverIfDesiredNodeAvailable, showUnlinkTimeout);
+        setTimeout(addObserverIfDesiredNodeAvailable, 200);
         return;
     }
     unlinkObserver.observe(unlinkedRefsContainer, obConfig);
@@ -82,7 +80,7 @@ async function main() {
   logseq.App.onRouteChanged(() => {
     setTimeout(() => {
       addObserverIfDesiredNodeAvailable();
-    }, showUnlinkTimeout) // wait for page load, otherwise would observer the previous page
+    }, 50) // wait for page load, otherwise would observer the previous page
   });
 
   logseq.beforeunload(async () => {
