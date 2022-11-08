@@ -89,7 +89,7 @@ async function main() {
 
 }
 
-const inlineSelector = '.inline, .is-paragraph, h1, h2, h3, h4, h5, h6'
+const contentSelector = '.inline, .is-paragraph, h1, h2, h3, h4, h5, h6'
 function addButton(blockEl, pageNames, isPureText) {
   let linkButton = blockEl.querySelector('.link-button')
   if (linkButton) {
@@ -140,69 +140,69 @@ function addButton(blockEl, pageNames, isPureText) {
     linkButton.style.display = 'none'
   })
 
-  blockEl.querySelector(inlineSelector).appendChild(linkButton)
+  blockEl.querySelector(contentSelector).appendChild(linkButton)
 }
 
 
 async function addHighlight(blockEl) {
-  const inline = blockEl.querySelector(inlineSelector)
-  if (!inline) {
-    return
-  }
+  const contentElements = blockEl.querySelectorAll(contentSelector)
   const pageNames = await getPageNames()
-
   const reStr = '(' + pageNames.join('|') + ')'
   const re = new RegExp(reStr, "ig");
-  let child = inline.firstChild
-  let inlineText = []  // pure text in first level of inline
-  let boldText = [];  // bold, italic, mark text in second level of inline
 
-  while (child) {
-    if (child.nodeType == 3 ) {
-      inlineText.push(child)
-    }
+  contentElements.forEach(content => {
 
-    if(['B', 'I', 'EM', 'STRONG', 'MARK', 'DEL'].includes(child.tagName)) {
-      boldText.push({
-        "parent": child,
-        "children": []
-      })
-    }
+    let child = content.firstChild
+    let pureText = []  // pure text in first level of inline
+    let formatText = [];  // bold, italic, mark text in second level of inline
 
-    child = child.nextSibling;
-  }
-
-  for(let i=0; i < boldText.length; i++) {
-    child = boldText[i]["parent"].firstChild
     while (child) {
       if (child.nodeType == 3 ) {
-        boldText[i]["children"].push(child)
+        pureText.push(child)
       }
+
+      if(['B', 'I', 'EM', 'STRONG', 'MARK', 'DEL'].includes(child.tagName)) {
+        formatText.push({
+          "parent": child,
+          "children": []
+        })
+      }
+
       child = child.nextSibling;
     }
-  }
 
-  function newHighlightNode(child) {
-    const text = child.textContent
-    if (re.test(text)) {
-      const isPureText = inline.tagName == "SPAN"
-      addButton(blockEl, pageNames, isPureText)
+    for(let i=0; i < formatText.length; i++) {
+      child = formatText[i]["parent"].firstChild
+      while (child) {
+        if (child.nodeType == 3 ) {
+          formatText[i]["children"].push(child)
+        }
+        child = child.nextSibling;
+      }
     }
-    let domText = text.replace(re, `<span class="${highlightClass}">$1</span>`)
-    let newDom = document.createElement("span");
-    newDom.innerHTML = domText
-    return newDom
-  }
 
-  inlineText.forEach(child => {
-    inline.replaceChild(newHighlightNode(child), child)
-  })
+    function newHighlightNode(child) {
+      const text = child.textContent
+      if (re.test(text)) {
+        const isPureText = content.tagName == "SPAN"
+        addButton(blockEl, pageNames, isPureText)
+      }
+      let domText = text.replace(re, `<span class="${highlightClass}">$1</span>`)
+      let newDom = document.createElement("span");
+      newDom.innerHTML = domText
+      return newDom
+    }
 
-  boldText.forEach(boldNode => {
-    boldNode["children"].forEach(c => {
-      boldNode["parent"].replaceChild(newHighlightNode(c), c)
+    pureText.forEach(child => {
+      content.replaceChild(newHighlightNode(child), child)
     })
-  })
+
+    formatText.forEach(boldNode => {
+      boldNode["children"].forEach(c => {
+        boldNode["parent"].replaceChild(newHighlightNode(c), c)
+      })
+    })
+  });
 }
 
 logseq.ready(main).catch(console.error)
