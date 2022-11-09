@@ -36,11 +36,12 @@ async function main() {
     line-height: 1em;
     font-family: tabler-icons;
   }
-
-    span.${highlightClass} {
-      background-color: yellow;
-    }
-
+  span.${highlightClass} {
+    background-color: yellow;
+  }
+  .dark span.${highlightClass} {
+    background-color: #ffff0030;
+  }
   `)
 
   let unlinkObserver, unlinkedRefsContainer;
