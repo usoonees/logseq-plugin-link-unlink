@@ -113,7 +113,7 @@ function addButton(blockEl, pageNames, isPureText) {
     */
     const newContent = content.replace(re, (match, _, i) => {
       while(i>=0) {
-          if(/\s/.test(content[i])) {
+          if(/\s/.test(content[i]) || content[i] === ']') {
               break
           } else if (content[i] == '[' || content[i] == '#') {
               return match
