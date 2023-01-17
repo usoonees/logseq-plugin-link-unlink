@@ -200,7 +200,7 @@ async function main() {
   unlinkObserver = new MutationObserver(unlinkCallback)
 
   function addObserverIfDesiredNodeAvailable() {
-    unlinkedRefsContainer = doc.querySelector(".page-unlinked .references")
+    unlinkedRefsContainer = doc.querySelector(".page-unlinked.references")
     if (!unlinkedRefsContainer) {
       setTimeout(addObserverIfDesiredNodeAvailable, 200)
       return
