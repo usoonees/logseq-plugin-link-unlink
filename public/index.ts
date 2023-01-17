@@ -172,7 +172,7 @@ async function main() {
   logseq.App.onRouteChanged(() => {
     setTimeout(async () => {
       await highlightLinked()
-    }, 500)
+    }, 100)
   })
 
   let unlinkObserver, unlinkedRefsContainer
