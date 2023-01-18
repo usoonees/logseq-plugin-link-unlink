@@ -37,8 +37,8 @@ async function highlightLinked() {
 }
 
 function unHighlightRef(preNames) {
-  const unsetSelector = preNames.map((name) => `.page-linked .page-ref[data-ref="${name}"]`).join(",")
-  const unsetDarkSelector = preNames.map((name) => `.dark .page-linked .page-ref[data-ref="${name}"]`).join(",")
+  const unsetSelector = preNames.map((name) => `.page-linked .page-ref[data-ref^="${name}"]`).join(",")
+  const unsetDarkSelector = preNames.map((name) => `.dark .page-linked .page-ref[data-ref^="${name}"]`).join(",")
   logseq.provideStyle(`
     ${unsetSelector} {
       background-color: unset;
@@ -51,10 +51,10 @@ function unHighlightRef(preNames) {
 }
 
 function highlightLinkRef(preNames, curNames) {
-  const unsetSelector = preNames.map((name) => `.page-linked .page-ref[data-ref="${name}"]`).join(",")
-  const unsetDarkSelector = preNames.map((name) => `.dark .page-linked .page-ref[data-ref="${name}"]`).join(",")
-  const setSelector = curNames.map((name) => `.page-linked .page-ref[data-ref="${name}"]`).join(",")
-  const setDarkSelector = curNames.map((name) => `.dark .page-linked .page-ref[data-ref="${name}"]`).join(",")
+  const unsetSelector = preNames.map((name) => `.page-linked .page-ref[data-ref^="${name}"]`).join(",")
+  const unsetDarkSelector = preNames.map((name) => `.dark .page-linked .page-ref[data-ref^="${name}"]`).join(",")
+  const setSelector = curNames.map((name) => `.page-linked .page-ref[data-ref^="${name}"]`).join(",")
+  const setDarkSelector = curNames.map((name) => `.dark .page-linked .page-ref[data-ref^="${name}"]`).join(",")
   logseq.provideStyle(`
     ${unsetSelector} {
       background-color: unset;
@@ -75,8 +75,8 @@ function highlightLinkRef(preNames, curNames) {
 }
 
 function unHighlightTag(preNames) {
-  const unsetTagSelector = preNames.map((name) => `.page-linked a.tag[data-ref="${name}"]`).join(",")
-  const unsetTagDarkSelector = preNames.map((name) => `.dark .page-linked a.tag[data-ref="${name}"]`).join(",")
+  const unsetTagSelector = preNames.map((name) => `.page-linked a.tag[data-ref^="${name}"]`).join(",")
+  const unsetTagDarkSelector = preNames.map((name) => `.dark .page-linked a.tag[data-ref^="${name}"]`).join(",")
   logseq.provideStyle(`
   ${unsetTagSelector} {
     background-color: unset;
@@ -90,10 +90,10 @@ function unHighlightTag(preNames) {
 }
 
 function highlighTagRef(preNames, curNames) {
-  const unsetTagSelector = preNames.map((name) => `.page-linked a.tag[data-ref="${name}"]`).join(",")
-  const unsetTagDarkSelector = preNames.map((name) => `.dark .page-linked a.tag[data-ref="${name}"]`).join(",")
-  const setTagSelector = curNames.map((name) => `.page-linked a.tag[data-ref="${name}"]`).join(",")
-  const setTagDarkSelector = curNames.map((name) => `.dark .page-linked a.tag[data-ref="${name}"]`).join(",")
+  const unsetTagSelector = preNames.map((name) => `.page-linked a.tag[data-ref^="${name}"]`).join(",")
+  const unsetTagDarkSelector = preNames.map((name) => `.dark .page-linked a.tag[data-ref^="${name}"]`).join(",")
+  const setTagSelector = curNames.map((name) => `.page-linked a.tag[data-ref^="${name}"]`).join(",")
+  const setTagDarkSelector = curNames.map((name) => `.dark .page-linked a.tag[data-ref^="${name}"]`).join(",")
   logseq.provideStyle(`
   ${unsetTagSelector} {
     background-color: unset;
