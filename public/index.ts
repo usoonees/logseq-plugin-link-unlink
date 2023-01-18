@@ -10,7 +10,8 @@ async function getPageNames() {
     pageNames = pageNames.concat(page.properties["alias"])
   }
 
-  return pageNames
+  // return lowercase page names
+  return pageNames.map((name) => name.toLowerCase())
 }
 
 let prePageNames = []
