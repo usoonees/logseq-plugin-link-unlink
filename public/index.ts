@@ -5,6 +5,9 @@ const highlightClass = "unlink-highlight"
 
 async function getPageNames() {
   const page = await logseq.Editor.getCurrentPage()
+  if(!page){
+    return
+  }
   let pageNames = [page.name]
   if (page.properties && page.properties["alias"]) {
     pageNames = pageNames.concat(page.properties["alias"])
@@ -17,7 +20,9 @@ async function getPageNames() {
 let prePageNames = []
 async function highlightLinked() {
   const curPageNames = await getPageNames()
-
+  if(!curPageNames){
+    return
+  }
   // references
   if (logseq.settings.highlightLinkedRefs) {
     highlightLinkRef(prePageNames, curPageNames)
