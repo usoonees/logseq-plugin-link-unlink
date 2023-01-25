@@ -9,9 +9,11 @@ async function getPageNames() {
     return
   }
   let pageNames = [page.name]
-  for(const alias of page.alias){
-    const aliasPage = await logseq.Editor.getPage(alias.id)
-    pageNames.push(aliasPage.name)
+  if (page.alias) {
+    for(const alias of page.alias){
+      const aliasPage = await logseq.Editor.getPage(alias.id)
+      pageNames.push(aliasPage.name)
+    }
   }
 
   // return lowercase page names
