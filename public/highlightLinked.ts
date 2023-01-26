@@ -22,11 +22,11 @@ function highlightLinkRef(preNames, curNames) {
   const setDarkSelector = curNames.map(selectDarkRef).join(",")
   logseq.provideStyle(`
 	  ${setSelector} {
-		background-color: yellow;
+		background-color: ${logseq.settings.highlightColor};
 	  }
   
 	  ${setDarkSelector} {
-		background-color:  #ffff0030;
+		background-color:  ${logseq.settings.highlightColorDarkMode};
 	  }
 	`)
 }
