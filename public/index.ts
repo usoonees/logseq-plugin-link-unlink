@@ -188,10 +188,13 @@ function addButton(blockEl, pageNames) {
     console.log("linked content: ", newContent)
 
     // sometimes header and paragraph would cause block render error
-    // so we need to step into edit mode first
+    // so we need to step into edit mode first, and exit after 100ms
     await logseq.Editor.editBlock(blockID)
     await logseq.Editor.updateBlock(blockID, newContent)
-    await logseq.Editor.exitEditingMode()
+
+    setTimeout(() => {
+      logseq.Editor.exitEditingMode()
+    }, 100);
 
     let highlights = blockEl.querySelectorAll(`.${highlightClass}`)
     for (let i = 0; i < highlights.length; i++) {
