@@ -45,7 +45,38 @@ async function highlightLinked() {
 }
 
 
-async function main() {
+logseq.useSettingsSchema([
+  {
+    key: "highlightColor",
+    title: "Highlight Color",
+    type: "string",
+    default: "yellow", // default to false
+    description: "",
+  },
+  {
+    key: "highlightColorDarkMode",
+    title: "Highlight Color in Dark Mode",
+    type: "string",
+    default: "#ffff0030",
+    description: "",
+  },
+  {
+    key: "highlightLinkedRefs",
+    title: "Whether to highlight references in linked references",
+    type: "boolean",
+    default: false, // default to false
+    description: "",
+  },
+  // {
+  //   key: "highlightLinkedTags",
+  //   title: "Whether to highlight tag in linked references",
+  //   type: "boolean",
+  //   default: false, // default to false
+  //   description: "",
+  // },
+])
+
+function provideStyle() {
   logseq.provideStyle(`
   button.link-button {
     float: right;
@@ -69,38 +100,27 @@ async function main() {
     font-family: tabler-icons;
   }
   span.${highlightClass} {
-    background-color: yellow;
+    background-color: ${logseq.settings.highlightColor};
   }
   .dark span.${highlightClass} {
-    background-color: #ffff0030;
+    background-color: ${logseq.settings.highlightColorDarkMode};
   }
   `)
+}
 
-  logseq.useSettingsSchema([
-    {
-      key: "highlightLinkedRefs",
-      title: "Whether to highlight references in linked references",
-      type: "boolean",
-      default: false, // default to false
-      description: "",
-    },
-    // {
-    //   key: "highlightLinkedTags",
-    //   title: "Whether to highlight tag in linked references",
-    //   type: "boolean",
-    //   default: false, // default to false
-    //   description: "",
-    // },
-  ])
-
+async function main() {
+  provideStyle()
 
   logseq.onSettingsChanged(async () => {
+    provideStyle()
     await highlightLinked()
   })
 
   logseq.App.onRouteChanged(() => {
     setTimeout(async () => {
-      await highlightLinked()
+      if(logseq.settings.highlightLinkedRefs){
+        await highlightLinked()
+      }
     }, 100)
   })
 
