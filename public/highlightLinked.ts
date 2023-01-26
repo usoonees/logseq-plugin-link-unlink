@@ -34,6 +34,7 @@ function highlightLinkRef(preNames, curNames) {
 const selectTag = (name) => `.page-linked a.tag[data-ref^="${name}"]`
 const selectDarkTag = (name) => `.dark .page-linked a.tag[data-ref^="${name}"]`
 
+// TODO: set tag color and background to previous
 function unHighlightTag(preNames) {
   const unsetTagSelector = preNames.map(selectTag).join(",")
   const unsetTagDarkSelector = preNames.map(selectDarkTag).join(",")

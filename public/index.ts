@@ -35,16 +35,14 @@ async function highlightLinked() {
   }
 
   // tags
-  if (logseq.settings.highlightLinkedTags) {
-    highlighTagRef(prePageNames, curPageNames)
-  } else {
-    unHighlightTag(prePageNames)
-  }
+  // if (logseq.settings.highlightLinkedTags) {
+  //   highlighTagRef(prePageNames, curPageNames)
+  // } else {
+  //   unHighlightTag(prePageNames)
+  // }
 
   prePageNames = curPageNames
-  
 }
-
 
 
 async function main() {
@@ -86,13 +84,13 @@ async function main() {
       default: false, // default to false
       description: "",
     },
-    {
-      key: "highlightLinkedTags",
-      title: "Whether to highlight tag in linked references",
-      type: "boolean",
-      default: false, // default to false
-      description: "",
-    },
+    // {
+    //   key: "highlightLinkedTags",
+    //   title: "Whether to highlight tag in linked references",
+    //   type: "boolean",
+    //   default: false, // default to false
+    //   description: "",
+    // },
   ])
 
 
