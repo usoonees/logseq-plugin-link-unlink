@@ -1,4 +1,5 @@
 import "@logseq/libs"
+import {highlighTagRef, unHighlightTag, highlightLinkRef, unHighlightRef} from './highlightLinked'
 
 const doc = parent.document
 const highlightClass = "unlink-highlight"
@@ -44,86 +45,7 @@ async function highlightLinked() {
   
 }
 
-function unHighlightRef(preNames) {
-  const unsetSelector = preNames.map((name) => `.page-linked .page-ref[data-ref^="${name}"]`).join(",")
-  const unsetDarkSelector = preNames.map((name) => `.dark .page-linked .page-ref[data-ref^="${name}"]`).join(",")
-  logseq.provideStyle(`
-    ${unsetSelector} {
-      background-color: unset;
-    }
 
-    ${unsetDarkSelector} {
-      background-color: unset;
-    }
-  `)
-}
-
-function highlightLinkRef(preNames, curNames) {
-  const unsetSelector = preNames.map((name) => `.page-linked .page-ref[data-ref^="${name}"]`).join(",")
-  const unsetDarkSelector = preNames.map((name) => `.dark .page-linked .page-ref[data-ref^="${name}"]`).join(",")
-  const setSelector = curNames.map((name) => `.page-linked .page-ref[data-ref^="${name}"]`).join(",")
-  const setDarkSelector = curNames.map((name) => `.dark .page-linked .page-ref[data-ref^="${name}"]`).join(",")
-  logseq.provideStyle(`
-    ${unsetSelector} {
-      background-color: unset;
-    }
-
-    ${unsetDarkSelector} {
-      background-color: unset;
-    }
-
-    ${setSelector} {
-      background-color: yellow;
-    }
-
-    ${setDarkSelector} {
-      background-color:  #ffff0030;
-    }
-  `)
-}
-
-function unHighlightTag(preNames) {
-  const unsetTagSelector = preNames.map((name) => `.page-linked a.tag[data-ref^="${name}"]`).join(",")
-  const unsetTagDarkSelector = preNames.map((name) => `.dark .page-linked a.tag[data-ref^="${name}"]`).join(",")
-  logseq.provideStyle(`
-  ${unsetTagSelector} {
-    background-color: unset;
-    color: unset;
-  }
-
-  ${unsetTagDarkSelector} {
-    background-color: unset;
-    color: unset;
-  }`)
-}
-
-function highlighTagRef(preNames, curNames) {
-  const unsetTagSelector = preNames.map((name) => `.page-linked a.tag[data-ref^="${name}"]`).join(",")
-  const unsetTagDarkSelector = preNames.map((name) => `.dark .page-linked a.tag[data-ref^="${name}"]`).join(",")
-  const setTagSelector = curNames.map((name) => `.page-linked a.tag[data-ref^="${name}"]`).join(",")
-  const setTagDarkSelector = curNames.map((name) => `.dark .page-linked a.tag[data-ref^="${name}"]`).join(",")
-  logseq.provideStyle(`
-  ${unsetTagSelector} {
-    background-color: unset;
-    color: unset;
-  }
-
-  ${unsetTagDarkSelector} {
-    background-color: unset;
-    color: unset;
-  }
-
-  ${setTagSelector} {
-    background-color: yellow;
-    color: #484576;
-  }
-
-  ${setTagDarkSelector} {
-    background-color:  #ffff0030;
-    color: #ebdddd;
-  }
-`)
-}
 
 async function main() {
   logseq.provideStyle(`
@@ -230,7 +152,7 @@ async function main() {
 }
 
 const contentSelector = ".inline, .is-paragraph, h1, h2, h3, h4, h5, h6"
-function addButton(blockEl, pageNames, isPureText) {
+function addButton(blockEl, pageNames) {
   let linkButton = blockEl.querySelector(".link-button")
   if (linkButton) {
     return
@@ -265,13 +187,11 @@ function addButton(blockEl, pageNames, isPureText) {
     console.log("unlinked content: ", content, pageNames)
     console.log("linked content: ", newContent)
 
+    // sometimes header and paragraph would cause block render error
+    // so we need to step into edit mode first
+    await logseq.Editor.editBlock(blockID)
     await logseq.Editor.updateBlock(blockID, newContent)
-
-    if (!isPureText) {
-      // sometimes header and paragraph would cause block render error
-      await logseq.Editor.editBlock(blockID)
-      logseq.Editor.exitEditingMode()
-    }
+    await logseq.Editor.exitEditingMode()
 
     let highlights = blockEl.querySelectorAll(`.${highlightClass}`)
     for (let i = 0; i < highlights.length; i++) {
@@ -323,8 +243,8 @@ async function addHighlight(blockEl) {
     function newHighlightNode(child) {
       const text = child.textContent
       if (re.test(text)) {
-        const isPureText = content.tagName == "SPAN"
-        addButton(blockEl, pageNames, isPureText)
+        // const isPureText = content.tagName == "SPAN"
+        addButton(blockEl, pageNames)
       }
       let domText = text.replace(
         re,
