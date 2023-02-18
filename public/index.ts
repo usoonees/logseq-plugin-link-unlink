@@ -17,8 +17,8 @@ async function getPageNames() {
     }
   }
 
-  // return lowercase page names
-  return pageNames.map((name) => name.toLowerCase())
+  // return lowercase page names, and sort by page length
+  return pageNames.sort((a, b) => b.length - a.length).map((name) => name.toLowerCase())
 }
 
 let prePageNames = []
