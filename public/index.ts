@@ -78,7 +78,7 @@ logseq.useSettingsSchema([
 
 function provideStyle() {
   logseq.provideStyle(`
-  button.link-button {
+  button.link-button, button.link-all-button {
     float: right;
     padding-left: 5px;
     padding-right: 5px;
@@ -87,10 +87,10 @@ function provideStyle() {
     opacity: 0.6;
     transition: .3s;
   }
-  button.link-button:hover {
+  button.link-button:hover, button.link-all-button:hover {
     opacity: 1;
   }
-  button.link-button::before {
+  button.link-button::before, button.link-all-button::before {
     content: "\\eade";
     width: 16px;
     height: 16px;
@@ -98,6 +98,9 @@ function provideStyle() {
     display: inline-block;
     line-height: 1em;
     font-family: tabler-icons;
+  }
+  button.link-all-button {
+    margin-left: auto;
   }
   span.${highlightClass} {
     background-color: ${logseq.settings.highlightColor};
@@ -121,8 +124,10 @@ async function main() {
       if(logseq.settings.highlightLinkedRefs){
         await highlightLinked()
       }
+    addLinkAllButton()
     }, 100)
   })
+
 
   let unlinkObserver, unlinkedRefsContainer
 
@@ -169,8 +174,49 @@ async function main() {
   })
 }
 
+function linkAll(event) {
+  console.log("Link all button clicked!"); 
+
+  event.preventDefault();  // Prevents the default behavior associated with the event
+  event.stopPropagation(); // Prevents the event from bubbling up
+  // event.preventDefault();  // Prevents the default behavior associated with the event
+  // const allUnlinkedButtons = doc.querySelectorAll(".link-button");
+  // allUnlinkedButtons.forEach((button) => {
+  //   button.click();
+  // });
+  console.log("Link all button finished!"); 
+}
+
+
+function addLinkAllButton() {
+  let linkAllButton = doc.createElement("button");
+  linkAllButton.setAttribute("class", "link-all-button");
+  linkAllButton.innerHTML = "Link All";
+  linkAllButton.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevents the event from bubbling up
+    e.preventDefault();  // Prevents the default behavior associated with the event
+    e.stopImmediatePropagation();
+    console.log("Link all button clicked!");
+  });
+  // 🌟 Create a span element
+  let wrapperSpan = doc.createElement("span");
+  
+  // 🌟 Append the button to the span
+  wrapperSpan.appendChild(linkAllButton);
+
+  // linkAllButton.addEventListener("click", linkAll);
+  let unLinkTitle = doc.querySelector(".references.page-unlinked .foldable-title > div")
+  if (unLinkTitle) {
+    unLinkTitle.appendChild(wrapperSpan);
+  }
+}
+
 const contentSelector = ".inline, .is-paragraph, h1, h2, h3, h4, h5, h6"
 function addButton(blockEl, pageNames) {
+  // let linkAllButton = doc.querySelector(".link-all-button");
+  // if (!linkAllButton) {
+  // }
+
   let linkButton = blockEl.querySelector(".link-button")
   if (linkButton) {
     return
