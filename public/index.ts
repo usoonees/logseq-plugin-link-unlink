@@ -174,29 +174,18 @@ async function main() {
   })
 }
 
-function linkAll(event) {
-  console.log("Link all button clicked!"); 
-
-  event.preventDefault();  // Prevents the default behavior associated with the event
-  event.stopPropagation(); // Prevents the event from bubbling up
-  // event.preventDefault();  // Prevents the default behavior associated with the event
-  // const allUnlinkedButtons = doc.querySelectorAll(".link-button");
-  // allUnlinkedButtons.forEach((button) => {
-  //   button.click();
-  // });
-  console.log("Link all button finished!"); 
-}
-
 
 function addLinkAllButton() {
   let linkAllButton = doc.createElement("button");
   linkAllButton.setAttribute("class", "link-all-button");
   linkAllButton.innerHTML = "Link All";
+  linkAllButton.style.display = "none"
   linkAllButton.addEventListener("click", (e) => {
-    e.stopPropagation(); // Prevents the event from bubbling up
-    e.preventDefault();  // Prevents the default behavior associated with the event
     e.stopImmediatePropagation();
-    console.log("Link all button clicked!");
+    const allUnlinkedButtons = doc.querySelectorAll(".link-button");
+    allUnlinkedButtons.forEach((button) => {
+      button.click();
+    });
   });
   // 🌟 Create a span element
   let wrapperSpan = doc.createElement("span");
@@ -205,17 +194,31 @@ function addLinkAllButton() {
   wrapperSpan.appendChild(linkAllButton);
 
   // linkAllButton.addEventListener("click", linkAll);
-  let unLinkTitle = doc.querySelector(".references.page-unlinked .foldable-title > div")
+  let unLinkTitle = doc.querySelector(".references.page-unlinked > .content > .flex > .content")
   if (unLinkTitle) {
-    unLinkTitle.appendChild(wrapperSpan);
+    unLinkTitle.insertBefore(wrapperSpan, unLinkTitle.firstChild);
+    unLinkTitle.addEventListener("click", (e) => {
+      let extended = unLinkTitle.nextElementSibling
+
+      setTimeout(() => {
+        if(extended.className == "hidden"){
+          linkAllButton.style.display = "none"
+          return
+        } 
+        if(!doc.querySelector(".link-button")) {
+          console.log("no link button")
+          return
+        }
+
+        linkAllButton.style.display = "inline-block"
+      }, 50);
+
+    });
   }
 }
 
 const contentSelector = ".inline, .is-paragraph, h1, h2, h3, h4, h5, h6"
 function addButton(blockEl, pageNames) {
-  // let linkAllButton = doc.querySelector(".link-all-button");
-  // if (!linkAllButton) {
-  // }
 
   let linkButton = blockEl.querySelector(".link-button")
   if (linkButton) {
