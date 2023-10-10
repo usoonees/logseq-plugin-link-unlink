@@ -124,7 +124,6 @@ async function main() {
       if(logseq.settings.highlightLinkedRefs){
         await highlightLinked()
       }
-    addLinkAllButton()
     }, 100)
   })
 
@@ -176,10 +175,21 @@ async function main() {
 
 
 function addLinkAllButton() {
-  let linkAllButton = doc.createElement("button");
+  let linkAllButton = doc.querySelector(".link-all-button");
+  if (linkAllButton) {
+    linkAllButton.style.display = "inline-block"
+    return
+  }
+  // linkAllButton.addEventListener("click", linkAll);
+  let unLinkTitle = doc.querySelector(".references.page-unlinked > .content > .flex > .content")
+  let extended = unLinkTitle.nextElementSibling
+
+  linkAllButton = doc.createElement("button");
   linkAllButton.setAttribute("class", "link-all-button");
   linkAllButton.innerHTML = "Link All";
-  linkAllButton.style.display = "none"
+  if(extended.className == "hidden"){
+    linkAllButton.style.display = "none"
+  } 
   linkAllButton.addEventListener("click", (e) => {
     e.stopImmediatePropagation();
     const allUnlinkedButtons = doc.querySelectorAll(".link-button");
@@ -193,13 +203,9 @@ function addLinkAllButton() {
   // 🌟 Append the button to the span
   wrapperSpan.appendChild(linkAllButton);
 
-  // linkAllButton.addEventListener("click", linkAll);
-  let unLinkTitle = doc.querySelector(".references.page-unlinked > .content > .flex > .content")
   if (unLinkTitle) {
     unLinkTitle.insertBefore(wrapperSpan, unLinkTitle.firstChild);
     unLinkTitle.addEventListener("click", (e) => {
-      let extended = unLinkTitle.nextElementSibling
-
       setTimeout(() => {
         if(extended.className == "hidden"){
           linkAllButton.style.display = "none"
@@ -211,7 +217,7 @@ function addLinkAllButton() {
         }
 
         linkAllButton.style.display = "inline-block"
-      }, 50);
+      }, 100);
 
     });
   }
@@ -219,7 +225,7 @@ function addLinkAllButton() {
 
 const contentSelector = ".inline, .is-paragraph, h1, h2, h3, h4, h5, h6"
 function addButton(blockEl, pageNames) {
-
+  addLinkAllButton()
   let linkButton = blockEl.querySelector(".link-button")
   if (linkButton) {
     return
